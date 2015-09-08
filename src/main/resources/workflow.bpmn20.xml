@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL
+                    http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd"
+   xmlns:activiti="http://activiti.org/bpmn" targetNamespace="seoj">
+   <process id="test">
+      <startEvent id="start"></startEvent>
+      <endEvent id="end"></endEvent>
+      <scriptTask scriptFormat="js" id="script">
+         <script>
+         <![CDATA[
+tryExecute('Reading file', function()
+{
+    org.apache.commons.io.IOUtils.toString(new java.io.FileReader('pom.xml'));
+});
+
+tryExecute('Writing file', function()
+{
+    var writer = new java.io.PrintWriter('test.txt');
+    try
+    {
+        writer.print('hello world');
+    } finally
+    {
+        writer.close();
+    }
+});
+
+tryExecute('Connecting through HTTP', function()
+{
+    var connection = new java.net.URL('https://www.google.com').openConnection();
+    var inputStream = connection.getInputStream();
+    inputStream.close();
+    connection.disconnect();
+});
+
+function tryExecute(action, lambda)
+{
+    log('Try', action);
+    try
+    {
+        lambda();
+        log(action, 'SUCCESS');
+    } catch (e)
+    {
+        log(action, 'ERROR', e);
+    }
+}
+
+function log()
+{
+    var builder = [];
+    for (var i = 0; i < arguments.length; i++)
+    {
+        builder.push(arguments[i]);
+    }
+    var message = builder.join(' ');
+    java.lang.System.out.println(message);
+}]]>
+         </script>
+      </scriptTask>
+
+      <sequenceFlow sourceRef="start" targetRef="script"></sequenceFlow>
+      <sequenceFlow sourceRef="script" targetRef="end"></sequenceFlow>
+   </process>
+</definitions>
